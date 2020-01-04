@@ -8,3 +8,12 @@
 # Script which makes use of other libraries and executibiles to upscale 
 # videos.
 ##############################################################################
+
+# Open file
+# Extract frames
+# Extract audio
+# Upscale frames
+# Sharpen frames
+# Interpolate
+# Reassemble frames
+# Reassemble audio
