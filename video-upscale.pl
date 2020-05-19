@@ -56,6 +56,7 @@ sub DumpFrames
 # -path to dir
 # Returns:
 # -Array of full paths to files
+#
 sub GetFilesFromDir
 {
   my ( $dir ) = @_;
@@ -81,6 +82,7 @@ sub GetFilesFromDir
 # Accepts:
 # -path to source file
 # -path to destination folder
+#
 sub SharpenFrame
 {
   my ( $src, $dst ) = @_;
@@ -94,6 +96,27 @@ sub SharpenFrame
  
   # Maybe a better sharpen depending on the source
   # system( "$IMAGEMAGICK $cur_file_path -unsharp 10x4+1+0 $dst_file_path" );
+ 
+  return;
+}
+
+#
+# Use gaussian blur to smooth artifacts of an image in a given path
+#
+# Accepts:
+# -path to source file
+# -path to destination folder
+#
+sub SmoothArtifacts
+{
+  my ( $src, $dst ) = @_;
+
+  print "Smoothing file: $src\n";
+
+  local ($name, $path, $ext) = fileparse( $src );
+  local $dst_file_path = $dst . $name;
+
+  system( "$IMAGEMAGICK $src -gaussian-blur 2x10 $dst_file_path" );
  
   return;
 }
@@ -137,15 +160,17 @@ foreach $frame ( @raw_frames ) {
   UpscaleFrame( $frame, $DST );
 }
 
-# Sharpen Frames
+# Smooth Compression Artifacts in Frames
 my @upscaled_frames = GetFilesFromDir( $DST );
 foreach $frame ( @upscaled_frames ) {
-  SharpenFrame( $frame, $DST );
+  SmoothArtifacts( $frame, $DST );
 }
 
-# Apply gausian blur to smooth artifacts?
-# convert src.png -gaussian-blur 2x10 dst.png
-# convert src.png -gaussian-blur .5x30 dst.png
+# Sharpen Frames
+my @smoothed_frames = GetFilesFromDir( $DST );
+foreach $frame ( @smoothed_frames ) {
+  SharpenFrame( $frame, $DST );
+}
 
 # Interpolate
 # Reassemble frames
